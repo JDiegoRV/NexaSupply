@@ -93,7 +93,7 @@ $text-muted: #94a3b8;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 5rem;
+  padding-top: 4rem;
   overflow: hidden;
   background: $surface-bg;
 
@@ -122,11 +122,13 @@ $text-muted: #94a3b8;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    padding-top: 2vh;
     text-align: center;
     max-width: 720px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
     z-index: 1;
   }
 

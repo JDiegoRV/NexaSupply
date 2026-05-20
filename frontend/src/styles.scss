@@ -7,10 +7,19 @@
   --surface-border: #334155;
 }
 
-body {
+html, body {
   margin: 0;
   padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
   background: var(--surface-ground);
   color: #e2e8f0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+app-root {
+  display: block;
 }
