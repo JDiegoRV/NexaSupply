@@ -94,7 +94,7 @@ $text-muted: #94a3b8;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6rem 1.5rem 3rem;
+  padding: 5rem 1.5rem 2rem;
   overflow: hidden;
   background: $surface-bg;
 
@@ -211,18 +211,31 @@ $text-muted: #94a3b8;
 
   .scroll-indicator {
     position: absolute;
-    bottom: 2rem;
+    bottom: 1.5rem;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    color: $text-muted;
-    font-size: 0.75rem;
+    gap: 0.35rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    font-weight: 500;
     cursor: pointer;
+    z-index: 10;
     animation: bounce-down 2s infinite;
     text-decoration: none;
+    transition: color 0.3s;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      opacity: 0.7;
+    }
   }
 }
 
