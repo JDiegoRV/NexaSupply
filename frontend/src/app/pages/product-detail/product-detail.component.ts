@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../environments/environment';
 
 interface ProductImage {
   id: string; url: string; alt_text?: string; sort_order: number;
@@ -263,7 +264,7 @@ export class ProductDetailComponent implements OnInit {
   error = '';
   toastVisible = false;
   toastMessage = '';
-  private apiBase = '/api';
+  private apiBase = environment.apiBaseUrl;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

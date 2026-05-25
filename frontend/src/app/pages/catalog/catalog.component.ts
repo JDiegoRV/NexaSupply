@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../environments/environment';
 
 interface Product {
   id: string;
@@ -113,7 +114,7 @@ export class CatalogComponent implements OnInit {
   toastMessage = '';
   quantities: Record<string, number> = {};
 
-  private apiBase = '/api';
+  private apiBase = environment.apiBaseUrl;
   private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {

@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
+import { environment } from '../../../environments/environment';
 
 interface AdminStore {
   id: string; name: string; owner_name: string; email: string;
@@ -437,7 +438,7 @@ export class AdminComponent implements OnInit {
   variantModifier = 0;
   variantStock = 0;
 
-  private apiBase = '/api';
+  private apiBase = environment.apiBaseUrl;
 
   constructor(
     private api: ApiService,
