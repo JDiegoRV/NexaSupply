@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 interface Product {
@@ -103,7 +104,7 @@ interface Product {
     .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   `]
 })
-export class CatalogComponent implements OnInit {
+export class CatalogComponent implements OnInit, OnDestroy {
   products: Product[] = [];
   filteredProducts: Product[] = [];
   categories: string[] = [];
@@ -117,9 +118,26 @@ export class CatalogComponent implements OnInit {
   private apiBase = environment.apiBaseUrl;
   private cdr = inject(ChangeDetectorRef);
 
+  private router = inject(Router);
+  private routerSub?: Subscription;
+
   ngOnInit(): void {
+    console.log('[Catalog] ngOnInit');
     this.loadProducts();
     this.loadCartCount();
+    this.routerSub = this.router.events.subscribe((e) => {
+      if (e.constructor.name === 'NavigationEnd') {
+        console.log('[Catalog] navigation end');
+        if (this.products.length === 0) {
+          this.loadProducts();
+          this.loadCartCount();
+        }
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.routerSub?.unsubscribe();
   }
 
   private getToken(): string {
@@ -144,12 +162,17 @@ export class CatalogComponent implements OnInit {
           ...(this.getToken() ? { Authorization: `Bearer ${this.getToken()}` } : {}),
         },
       });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       const products: Product[] = await res.json();
+      console.log('[Catalog] products loaded:', products.length);
       this.products = products;
       this.categories = [...new Set(products.map(p => p.category).filter(Boolean))] as string[];
       this.filterProducts();
-    } catch (e) {
-      console.error('[Catalog] Error loading products:', e);
+    } catch (e: any) {
+      console.error('[Catalog] Error loading products:', e.message || e);
+      this.toastMessage = 'Error al cargar productos';
+      this.toastVisible = true;
+      setTimeout(() => this.toastVisible = false, 5000);
     }
   }
 
