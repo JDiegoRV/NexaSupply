@@ -168,6 +168,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
       this.products = products;
       this.categories = [...new Set(products.map(p => p.category).filter(Boolean))] as string[];
       this.filterProducts();
+      this.cdr.detectChanges();
     } catch (e: any) {
       console.error('[Catalog] Error loading products:', e.message || e);
       this.toastMessage = 'Error al cargar productos';
@@ -177,6 +178,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   filterProducts(): void {
+    console.log('[Catalog] filterProducts, products.length:', this.products.length);
     let filtered = this.products;
     if (this.selectedCategory) {
       filtered = filtered.filter(p => p.category === this.selectedCategory);
@@ -186,6 +188,8 @@ export class CatalogComponent implements OnInit, OnDestroy {
       filtered = filtered.filter(p => p.name.toLowerCase().includes(q));
     }
     this.filteredProducts = filtered;
+    console.log('[Catalog] filterProducts -> filteredProducts:', this.filteredProducts.length);
+    this.cdr.detectChanges();
   }
 
   async loadCartCount(): Promise<void> {
