@@ -446,7 +446,7 @@ export class AdminComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const token = localStorage.getItem('nexa_admin_token');
+    const token = localStorage.getItem('nexa_token');
     if (token) this.loadData();
   }
 
@@ -459,7 +459,7 @@ export class AdminComponent implements OnInit {
     this.error = '';
     this.api.post<any>('/admin/login', { email: this.email, password: this.password }).subscribe({
       next: (res) => {
-        localStorage.setItem('nexa_admin_token', res.access_token);
+        localStorage.setItem('nexa_token', res.access_token);
         this.loading = false;
         this.loadData();
       },
@@ -547,7 +547,7 @@ export class AdminComponent implements OnInit {
     if (this.imageAltText) formData.append('alt_text', this.imageAltText);
 
     try {
-      const token = localStorage.getItem('nexa_admin_token');
+      const token = localStorage.getItem('nexa_token');
       const res = await fetch(`${this.apiBase}/admin/products/${this.editingProduct.id}/images`, {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -595,7 +595,7 @@ export class AdminComponent implements OnInit {
   }
 
   logout(): void {
-    localStorage.removeItem('nexa_admin_token');
+    localStorage.removeItem('nexa_token');
     this.view = 'login';
     this.email = ''; this.password = '';
   }
