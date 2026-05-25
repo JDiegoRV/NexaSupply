@@ -195,3 +195,93 @@ class InventoryItemResponse(BaseModel):
 
     _ser_id = field_serializer("id")(_uuid_to_str)
     _ser_pid = field_serializer("product_id")(_uuid_to_str)
+
+
+# ── Ventas ──
+class SaleItemCreate(BaseModel):
+    product_id: str
+    quantity: int
+    unit_price: float
+
+
+class SaleCreate(BaseModel):
+    items: list[SaleItemCreate]
+    client_name: Optional[str] = None
+    client_document: Optional[str] = None
+    sale_type: str = "boleta"
+    discount: float = 0.0
+    payment_method: str = "cash"
+    notes: Optional[str] = None
+
+
+class SaleItemResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID
+    product_id: UUID
+    product_name: str
+    quantity: int
+    unit_price: float
+    subtotal: float
+
+    _ser_id = field_serializer("id")(_uuid_to_str)
+    _ser_pid = field_serializer("product_id")(_uuid_to_str)
+
+
+class SaleResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID
+    sale_number: str
+    client_name: Optional[str] = None
+    client_document: Optional[str] = None
+    sale_type: Optional[str] = None
+    subtotal: float
+    discount: float
+    igv: float
+    total: float
+    payment_method: str
+    notes: Optional[str] = None
+    created_at: datetime
+    items: list[SaleItemResponse] = []
+
+    _ser_id = field_serializer("id")(_uuid_to_str)
+
+
+class SaleSummary(BaseModel):
+    sales_today: int
+    sales_month: int
+    total_today: float
+    total_month: float
+    total_all_time: float
+    avg_ticket: float
+
+
+# ── Reviews ──
+class ReviewCreate(BaseModel):
+    product_id: str
+    order_id: str
+    rating: int
+    comment: Optional[str] = None
+
+
+class ReviewResponse(BaseModel):
+    id: str
+    store_name: str
+    rating: int
+    comment: Optional[str] = None
+    created_at: datetime
+
+
+class ReviewStats(BaseModel):
+    average_rating: float
+    total_reviews: int
+    distribution: dict
+
+
+# ── Subscription Checkout ──
+class SubscriptionCheckout(BaseModel):
+    store_data: StoreRegister
+    plan: str = "basic"
+    card_number: str
+    expiry: str
+    cvv: str
+    card_holder: str

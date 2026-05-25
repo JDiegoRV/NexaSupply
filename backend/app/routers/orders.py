@@ -130,12 +130,24 @@ def advance_tracking(
 
     if next_status == "delivered":
         order.delivered_at = now
+        # Actualizar inventario igual que en receive_order
+        for item in order.items:
+            inv = (
+                db.query(InventoryItem)
+                .filter(InventoryItem.store_id == store_id, InventoryItem.product_id == item.product_id)
+                .first()
+            )
+            if inv:
+                inv.quantity += item.quantity
+            else:
+                db.add(InventoryItem(store_id=store_id, product_id=item.product_id, quantity=item.quantity))
 
     db.commit()
     return {
         "order_id": str(order.id),
         "tracking_status": order.tracking_status,
         "status_history": order.status_history,
+        "inventory_updated": len(order.items) if next_status == "delivered" else 0,
     }
 
 

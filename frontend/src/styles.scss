@@ -27,3 +27,16 @@ body {
 app-root {
   display: block;
 }
+
+/* ── Form inputs: forzar texto oscuro en fondos blancos ── */
+input,
+textarea,
+select {
+  color: #111827 !important; /* gray-900 — legible sobre fondo blanco */
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af !important; /* gray-400 — placeholder visible pero sutil */
+  opacity: 1;
+}

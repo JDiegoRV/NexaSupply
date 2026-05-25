@@ -32,6 +32,15 @@ export class AuthService {
     );
   }
 
+  registerWithPayment(data: any): Observable<LoginResponse> {
+    return this.api.post<LoginResponse>('/subscriptions/checkout', data).pipe(
+      tap((res) => {
+        localStorage.setItem('nexa_token', res.access_token);
+        localStorage.setItem('nexa_store', JSON.stringify({ id: res.store_id, name: res.store_name }));
+      })
+    );
+  }
+
   logout(): void {
     localStorage.removeItem('nexa_token');
     localStorage.removeItem('nexa_store');

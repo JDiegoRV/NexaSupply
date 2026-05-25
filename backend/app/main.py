@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from .core.database import engine, Base
 from .models import *  # noqa — carga todos los modelos para create_all
-from .routers import auth, products, cart, checkout, orders, inventory, admin
+from .routers import auth, products, cart, checkout, orders, inventory, admin, sales, reviews, subscriptions
 from .dev import router as dev_router
 from .dev.auth import router as dev_auth_router
 from .dev.products import router as dev_products_router
@@ -64,6 +64,9 @@ app.include_router(checkout.router, prefix="/api/checkout", tags=["Checkout"])
 app.include_router(orders.router, prefix="/api/orders", tags=["Orders"])
 app.include_router(inventory.router, prefix="/api/inventory", tags=["Inventory"])
 app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
+app.include_router(sales.router, prefix="/api/sales", tags=["Sales"])
+app.include_router(reviews.router, prefix="/api/reviews", tags=["Reviews"])
+app.include_router(subscriptions.router, prefix="/api/subscriptions", tags=["Subscriptions"])
 
 
 # ── Static files (product images) ──

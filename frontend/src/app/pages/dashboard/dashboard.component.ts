@@ -100,6 +100,31 @@ import { AuthService } from '../../services/auth.service';
           </a>
         </div>
 
+        <!-- Second row quick actions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <a routerLink="/ventas" class="bg-white rounded-xl shadow-sm p-4 border border-gray-200 hover:border-green-300 hover:shadow-md transition flex items-center gap-3">
+            <span class="text-2xl">🧾</span>
+            <div>
+              <p class="font-semibold text-gray-900">Ventas</p>
+              <p class="text-sm text-gray-500">Registrar ventas a clientes</p>
+            </div>
+          </a>
+          <a routerLink="/carrito" class="bg-white rounded-xl shadow-sm p-4 border border-gray-200 hover:border-blue-300 hover:shadow-md transition flex items-center gap-3">
+            <span class="text-2xl">🛒</span>
+            <div>
+              <p class="font-semibold text-gray-900">Carrito</p>
+              <p class="text-sm text-gray-500">Ver mi carrito de compras</p>
+            </div>
+          </a>
+          <a routerLink="/checkout" class="bg-white rounded-xl shadow-sm p-4 border border-gray-200 hover:border-blue-300 hover:shadow-md transition flex items-center gap-3">
+            <span class="text-2xl">💳</span>
+            <div>
+              <p class="font-semibold text-gray-900">Checkout</p>
+              <p class="text-sm text-gray-500">Procesar pago</p>
+            </div>
+          </a>
+        </div>
+
         <!-- Recent Orders -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200">
           <div class="px-6 py-4 border-b border-gray-200">

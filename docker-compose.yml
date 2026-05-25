@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: nexasupply
       POSTGRES_PASSWORD: nexasupply123
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - D:/Archivos/Clases/E-Business/pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
@@ -36,5 +36,4 @@ services:
     depends_on:
       - api
 
-volumes:
-  pgdata:
+# pgdata persisted at D:/Archivos/Clases/E-Business/pgdata (bind mount)
