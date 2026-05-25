@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
@@ -205,6 +205,7 @@ export class ProductDetailComponent implements OnInit {
 
   private route = inject(ActivatedRoute);
   private api = inject(ApiService);
+  private cdr = inject(ChangeDetectorRef);
 
   product?: Product;
   relatedProducts: Product[] = [];
@@ -244,12 +245,14 @@ export class ProductDetailComponent implements OnInit {
         if (p.images?.length > 0) this.selectedImage = p.images[0];
         if (p.variants?.length > 0) this.selectedVariant = p.variants[0];
         this.loading = false;
+        this.cdr.detectChanges();
         this.loadRelated(p.category);
       },
       error: (err) => {
         console.error('[ProductDetail] error:', err);
-        this.error = err.error?.detail || err.message || 'Error al cargar producto';
+        this.error = 'Error al cargar producto';
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -271,11 +274,16 @@ export class ProductDetailComponent implements OnInit {
   }
 
   addToCart(): void {
-    const token = localStorage.getItem('nexa_token');
-    if (!token) { this.showToast('Inicia sesion'); return; }
+    console.log('[ProductDetail] addToCart');
     this.api.post<any>('/cart/add', { product_id: this.product!.id, quantity: this.qty }).subscribe({
-      next: () => this.showToast(`${this.product!.name} x${this.qty} agregado al carrito`),
-      error: () => this.showToast('Error al agregar al carrito')
+      next: (res) => {
+        console.log('[ProductDetail] addToCart ok', res);
+        this.showToast(`${this.product!.name} x${this.qty} agregado al carrito`);
+      },
+      error: (err) => {
+        console.error('[ProductDetail] addToCart error', err);
+        this.showToast('Error al agregar al carrito');
+      }
     });
   }
 

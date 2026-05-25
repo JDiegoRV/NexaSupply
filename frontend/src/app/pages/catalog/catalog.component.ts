@@ -65,25 +65,40 @@ interface Product {
         <!-- Product Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           @for (product of filteredProducts; track product.id) {
-            <a [routerLink]="'/producto/' + product.id" class="block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition group">
-              <div class="h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center overflow-hidden">
-                @if (product.images && product.images.length > 0) {
-                  <img [src]="product.images[0].url" [alt]="product.name"
-                    class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300" />
-                } @else {
-                  <span class="text-6xl">{{ getProductEmoji(product.category) }}</span>
-                }
-              </div>
-              <div class="p-4">
-                <span class="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">{{ product.category }}</span>
-                <h3 class="text-lg font-semibold text-gray-900 mt-2">{{ product.name }}</h3>
-                <p class="text-sm text-gray-500 mt-1 line-clamp-2">{{ product.description }}</p>
-                <div class="flex items-center justify-between mt-4">
-                  <span class="text-xl font-bold text-gray-900">S/ {{ product.price.toFixed(2) }}</span>
-                  <span class="text-xs text-gray-400">Stock: {{ product.stock }}</span>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition group">
+              <a [routerLink]="'/producto/' + product.id" class="block">
+                <div class="h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center overflow-hidden">
+                  @if (product.images && product.images.length > 0) {
+                    <img [src]="product.images[0].url" [alt]="product.name"
+                      class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300" />
+                  } @else {
+                    <span class="text-6xl">{{ getProductEmoji(product.category) }}</span>
+                  }
                 </div>
+                <div class="p-4">
+                  <span class="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">{{ product.category }}</span>
+                  <h3 class="text-lg font-semibold text-gray-900 mt-2">{{ product.name }}</h3>
+                  <p class="text-sm text-gray-500 mt-1 line-clamp-2">{{ product.description }}</p>
+                  <div class="flex items-center justify-between mt-4">
+                    <span class="text-xl font-bold text-gray-900">S/ {{ product.price.toFixed(2) }}</span>
+                    <span class="text-xs text-gray-400">Stock: {{ product.stock }}</span>
+                  </div>
+                </div>
+              </a>
+              <div class="px-4 pb-4">
+                <button (click)="addToCart($event, product)"
+                  [disabled]="product.stock === 0"
+                  class="w-full py-2 px-4 rounded-lg font-medium text-sm transition"
+                  [class.bg-blue-600]="product.stock > 0"
+                  [class.text-white]="product.stock > 0"
+                  [class.hover:bg-blue-700]="product.stock > 0"
+                  [class.bg-gray-200]="product.stock === 0"
+                  [class.text-gray-400]="product.stock === 0"
+                  [class.cursor-not-allowed]="product.stock === 0">
+                  {{ product.stock > 0 ? 'Agregar al carrito' : 'Agotado' }}
+                </button>
               </div>
-            </a>
+            </div>
           } @empty {
             <div class="col-span-full text-center py-12">
               <p class="text-gray-500 text-lg">No se encontraron productos</p>
@@ -198,6 +213,24 @@ export class CatalogComponent implements OnInit, OnDestroy {
       this.cartCount = items.reduce((sum, i) => sum + i.quantity, 0);
       this.cdr.detectChanges();
     } catch { }
+  }
+
+  async addToCart(event: MouseEvent, product: Product): Promise<void> {
+    event.preventDefault();
+    const token = this.getToken();
+    if (!token) { this.toastMessage = 'Inicia sesion para agregar al carrito'; this.toastVisible = true; setTimeout(() => this.toastVisible = false, 3000); return; }
+    try {
+      await fetch(`${this.apiBase}/cart/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ product_id: product.id, quantity: 1 }),
+      });
+      this.cartCount++;
+      this.cdr.detectChanges();
+      this.toastMessage = `${product.name} agregado al carrito`;
+      this.toastVisible = true;
+      setTimeout(() => this.toastVisible = false, 3000);
+    } catch { this.toastMessage = 'Error al agregar'; this.toastVisible = true; setTimeout(() => this.toastVisible = false, 3000); }
   }
 
   getProductEmoji(category: string): string {
