@@ -36,7 +36,6 @@ type View = 'login' | 'dashboard' | 'orders' | 'stores' | 'products' | 'product-
   imports: [FormsModule, RouterLink, DatePipe],
   template: `
     <div class="min-h-screen bg-gray-900">
-      @if (view === 'login') { admin login template }
       @if (view === 'login') {
         <div class="min-h-screen flex items-center justify-center p-4">
           <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-md p-8">
