@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml .npmrc ./
 RUN npm install -g pnpm && pnpm install
 COPY . .
-RUN pnpm build --configuration production
+RUN pnpm exec ng build --configuration production
 
 # Serve stage
 FROM nginx:alpine
