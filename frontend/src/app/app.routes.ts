@@ -43,5 +43,9 @@ export const routes: Routes = [
     path: 'admin',
     loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent),
   },
+  {
+    path: 'producto/:id',
+    loadComponent: () => import('./pages/product-detail/product-detail.component').then(m => m.ProductDetailComponent),
+  },
   { path: '**', redirectTo: '' },
 ];

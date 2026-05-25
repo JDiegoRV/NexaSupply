@@ -5,5 +5,7 @@ from .cart import CartItem
 from .order import Order, OrderItem
 from .inventory import InventoryItem
 from .subscription import Subscription
+from .product_image import ProductImage
+from .product_variant import ProductVariant
 
-__all__ = ["Base", "Store", "Product", "CartItem", "Order", "OrderItem", "InventoryItem", "Subscription"]
+__all__ = ["Base", "Store", "Product", "CartItem", "Order", "OrderItem", "InventoryItem", "Subscription", "ProductImage", "ProductVariant"]

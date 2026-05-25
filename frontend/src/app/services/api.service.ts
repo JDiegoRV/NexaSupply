@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private baseUrl = 'http://192.168.100.70:8000/api';
+  private baseUrl = '/api';
 
   constructor(private http: HttpClient) {}
 
@@ -22,6 +22,10 @@ export class ApiService {
 
   post<T>(path: string, body: any = {}): Observable<T> {
     return this.http.post<T>(`${this.baseUrl}${path}`, body, { headers: this.headers() });
+  }
+
+  put<T>(path: string, body: any = {}): Observable<T> {
+    return this.http.put<T>(`${this.baseUrl}${path}`, body, { headers: this.headers() });
   }
 
   delete<T>(path: string): Observable<T> {

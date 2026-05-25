@@ -1,5 +1,7 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from .core.database import engine, Base
 from .models import *  # noqa — carga todos los modelos para create_all
 from .routers import auth, products, cart, checkout, orders, inventory, admin
@@ -62,6 +64,12 @@ app.include_router(checkout.router, prefix="/api/checkout", tags=["Checkout"])
 app.include_router(orders.router, prefix="/api/orders", tags=["Orders"])
 app.include_router(inventory.router, prefix="/api/inventory", tags=["Inventory"])
 app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
+
+
+# ── Static files (product images) ──
+UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
+os.makedirs(os.path.join(UPLOAD_DIR, "products"), exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 
 @app.get("/api/health")

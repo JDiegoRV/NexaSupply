@@ -48,6 +48,34 @@ class StoreResponse(BaseModel):
     _ser_id = field_serializer("id")(_uuid_to_str)
 
 
+# ── Producto Images ──
+class ProductImageResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID
+    url: str
+    alt_text: Optional[str] = None
+    sort_order: int = 0
+
+    _ser_id = field_serializer("id")(_uuid_to_str)
+
+
+# ── Producto Variants ──
+class ProductVariantResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID
+    name: str
+    price_modifier: float = 0.0
+    stock: int = 0
+
+    _ser_id = field_serializer("id")(_uuid_to_str)
+
+
+class ProductVariantCreate(BaseModel):
+    name: str
+    price_modifier: float = 0.0
+    stock: int = 0
+
+
 # ── Productos ──
 class ProductResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -59,8 +87,27 @@ class ProductResponse(BaseModel):
     image_url: Optional[str] = None
     stock: int
     is_active: bool
+    images: list[ProductImageResponse] = []
+    variants: list[ProductVariantResponse] = []
 
     _ser_id = field_serializer("id")(_uuid_to_str)
+
+
+class ProductCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    price: float
+    category: Optional[str] = None
+    stock: int = 0
+
+
+class ProductUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
+    category: Optional[str] = None
+    stock: Optional[int] = None
+    is_active: Optional[bool] = None
 
 
 # ── Carrito ──

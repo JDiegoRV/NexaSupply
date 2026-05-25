@@ -10,6 +10,8 @@ interface Product {
   category: string;
   stock: number;
   image_url: string;
+  images?: { id: string; url: string; alt_text?: string; sort_order: number }[];
+  variants?: { id: string; name: string; price_modifier: number; stock: number }[];
 }
 
 @Component({
@@ -22,7 +24,7 @@ interface Product {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-16 items-center">
             <div class="flex items-center gap-3">
-              <a routerLink="/dashboard" class="text-2xl font-bold text-blue-600">◆</a>
+              <a routerLink="/dashboard" class="text-2xl font-bold text-blue-600">NexaSupply</a>
               <span class="text-lg font-semibold text-gray-900">Catálogo</span>
             </div>
             <div class="flex items-center gap-4">
@@ -61,9 +63,14 @@ interface Product {
         <!-- Product Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           @for (product of filteredProducts; track product.id) {
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition group">
-              <div class="h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-                <span class="text-6xl">{{ getProductEmoji(product.category) }}</span>
+            <a [routerLink]="'/producto/' + product.id" class="block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition group">
+              <div class="h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center overflow-hidden">
+                @if (product.images && product.images.length > 0) {
+                  <img [src]="product.images[0].url" [alt]="product.name"
+                    class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300" />
+                } @else {
+                  <span class="text-6xl">{{ getProductEmoji(product.category) }}</span>
+                }
               </div>
               <div class="p-4">
                 <span class="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">{{ product.category }}</span>
@@ -73,26 +80,8 @@ interface Product {
                   <span class="text-xl font-bold text-gray-900">S/ {{ product.price.toFixed(2) }}</span>
                   <span class="text-xs text-gray-400">Stock: {{ product.stock }}</span>
                 </div>
-                <!-- Quantity selector -->
-                <div class="flex items-center justify-center gap-2 mt-3">
-                  <button (click)="setQty(product.id, (quantities[product.id] || 1) - 1, product.stock)"
-                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition">−</button>
-                  <input type="number" [value]="quantities[product.id] || 1"
-                    (change)="setQty(product.id, +$any($event).target.value, product.stock)"
-                    class="w-14 h-8 text-center border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" min="1" [max]="product.stock" />
-                  <button (click)="setQty(product.id, (quantities[product.id] || 1) + 1, product.stock)"
-                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition">+</button>
-                </div>
-                <button (click)="addToCart(product)"
-                  [disabled]="product.stock === 0"
-                  class="mt-3 w-full py-2 px-4 rounded-lg font-medium text-sm transition
-                    {{ product.stock > 0
-                      ? 'bg-blue-600 text-white hover:bg-blue-700'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed' }}">
-                  {{ product.stock > 0 ? 'Agregar al carrito' : 'Agotado' }}
-                </button>
               </div>
-            </div>
+            </a>
           } @empty {
             <div class="col-span-full text-center py-12">
               <p class="text-gray-500 text-lg">No se encontraron productos</p>
@@ -100,14 +89,13 @@ interface Product {
           }
         </div>
       </div>
-    </div>
 
-    <!-- Toast notification -->
-    @if (toastVisible) {
-      <div class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg animate-bounce">
-        {{ toastMessage }}
-      </div>
-    }
+      @if (toastVisible) {
+        <div class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg animate-bounce">
+          {{ toastMessage }}
+        </div>
+      }
+    </div>
   `,
   styles: [`
     :host { display: block; }
@@ -125,13 +113,10 @@ export class CatalogComponent implements OnInit {
   toastMessage = '';
   quantities: Record<string, number> = {};
 
-  private apiBase = 'http://192.168.100.70:8000/api';
+  private apiBase = '/api';
   private cdr = inject(ChangeDetectorRef);
 
-  constructor() {}
-
   ngOnInit(): void {
-    console.log('[Catalog] ngOnInit');
     this.loadProducts();
     this.loadCartCount();
   }
@@ -150,49 +135,25 @@ export class CatalogComponent implements OnInit {
     return res.json();
   }
 
-  private async apiPost<T>(path: string, body: any): Promise<T> {
-    const res = await fetch(`${this.apiBase}${path}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(this.getToken() ? { Authorization: `Bearer ${this.getToken()}` } : {}),
-      },
-      body: JSON.stringify(body),
-    });
-    return res.json();
-  }
-
   async loadProducts(): Promise<void> {
     try {
-      console.log('[Catalog] loadProducts start');
       const res = await fetch(`${this.apiBase}/products/`, {
         headers: {
           'Content-Type': 'application/json',
           ...(this.getToken() ? { Authorization: `Bearer ${this.getToken()}` } : {}),
         },
       });
-      console.log('[Catalog] fetch status:', res.status);
       const products: Product[] = await res.json();
-      console.log('[Catalog] products parsed:', products.length, products.slice(0,2));
       this.products = products;
       this.categories = [...new Set(products.map(p => p.category).filter(Boolean))] as string[];
-      for (const p of products) {
-        if (!this.quantities[p.id]) this.quantities[p.id] = 1;
-      }
       this.filterProducts();
     } catch (e) {
       console.error('[Catalog] Error loading products:', e);
     }
   }
 
-  setQty(productId: string, qty: number, stock: number): void {
-    let val = Math.max(1, Math.min(qty, stock || qty));
-    this.quantities[productId] = val;
-  }
-
   filterProducts(): void {
     let filtered = this.products;
-    console.log('[Catalog] filterProducts start. products:', this.products.length, 'selectedCategory:', JSON.stringify(this.selectedCategory), 'search:', JSON.stringify(this.search));
     if (this.selectedCategory) {
       filtered = filtered.filter(p => p.category === this.selectedCategory);
     }
@@ -201,47 +162,14 @@ export class CatalogComponent implements OnInit {
       filtered = filtered.filter(p => p.name.toLowerCase().includes(q));
     }
     this.filteredProducts = filtered;
-    console.log('[Catalog] filteredProducts set to:', this.filteredProducts.length);
-    this.cdr.detectChanges();
-    console.log('[Catalog] detectChanges called');
-  }
-
-  async addToCart(product: Product): Promise<void> {
-    try {
-      const qty = this.quantities[product.id] || 1;
-      console.log('[Catalog] addToCart', product.id, 'qty:', qty);
-      await this.apiPost<any>('/cart/add', { product_id: product.id, quantity: qty });
-      this.cartCount += qty;
-      console.log('[Catalog] cartCount updated:', this.cartCount);
-      this.showToast(`${product.name} ×${qty} agregado al carrito`);
-      this.cdr.detectChanges();
-      console.log('[Catalog] detectChanges after addToCart');
-    } catch (e) {
-      console.error('[Catalog] addToCart error:', e);
-      this.showToast('Error al agregar al carrito');
-      this.cdr.detectChanges();
-    }
   }
 
   async loadCartCount(): Promise<void> {
     try {
       const items: any[] = await this.apiGet<any[]>('/cart/');
       this.cartCount = items.reduce((sum, i) => sum + i.quantity, 0);
-      console.log('[Catalog] loadCartCount:', this.cartCount);
       this.cdr.detectChanges();
-    } catch (e) {
-      console.error('[Catalog] loadCartCount error:', e);
-    }
-  }
-
-  showToast(msg: string): void {
-    this.toastMessage = msg;
-    this.toastVisible = true;
-    this.cdr.detectChanges();
-    setTimeout(() => {
-      this.toastVisible = false;
-      this.cdr.detectChanges();
-    }, 3000);
+    } catch { }
   }
 
   getProductEmoji(category: string): string {
