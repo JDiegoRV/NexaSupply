@@ -239,10 +239,10 @@ interface MyOrder {
                         <span class="text-yellow-400">★</span>
                         <div class="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
                           <div class="bg-yellow-400 h-full rounded-full transition-all"
-                            [style.width.%]="reviewStats.total_reviews > 0 ? (reviewStats.distribution[s.toString()] || 0) / reviewStats.total_reviews * 100 : 0">
+                            [style.width.%]="distWidth(s)">
                           </div>
                         </div>
-                        <span class="w-4 text-gray-500">{{ reviewStats.distribution[s.toString()] || 0 }}</span>
+                        <span class="w-4 text-gray-500">{{ distCount(s) }}</span>
                       </div>
                     }
                   </div>
@@ -493,15 +493,14 @@ export class ProductDetailComponent implements OnInit {
       comment: this.reviewComment || null,
     }).subscribe({
       next: (r) => {
-        this.reviews.unshift(r);
-        this.reviewStats.total_reviews++;
-        this.reviewStats.average_rating = this.reviews.reduce((s, rev) => s + rev.rating, 0) / this.reviews.length;
         this.myReview = r;
         this.showReviewForm = false;
         this.submittingReview = false;
         this.reviewRating = 0;
         this.reviewComment = '';
         this.showToast('¡Opinión publicada!');
+        // Recargar lista y stats desde el backend para actualizar distribución
+        this.loadReviews(this.product!.id);
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -510,6 +509,17 @@ export class ProductDetailComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  distCount(star: number): number {
+    if (!this.reviewStats?.distribution) return 0;
+    const d = this.reviewStats.distribution;
+    return d[star] ?? d[String(star)] ?? 0;
+  }
+
+  distWidth(star: number): number {
+    if (!this.reviewStats?.total_reviews) return 0;
+    return (this.distCount(star) / this.reviewStats.total_reviews) * 100;
   }
 
   selectImage(img: ProductImage): void { this.selectedImage = img; }
